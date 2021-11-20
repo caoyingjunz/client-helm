@@ -30,14 +30,18 @@ type Interface interface {
 type Clientset struct {
 	restConfig *rest.Config
 
-	helm v1.AppsV1Interface
+	appsV1 v1.AppsV1Interface
+}
+
+func (c *Clientset) AppsV1() v1.AppsV1Interface {
+	return c.appsV1
 }
 
 // NewForConfig creates a new Clientset for the given config.
 func NewForConfig(c *rest.Config) (*Clientset, error) {
 	var cs Clientset
 	var err error
-	cs.helm, err = v1.NewForConfig(c)
+	cs.appsV1, err = v1.NewForConfig(c)
 	if err != nil {
 		return nil, err
 	}
