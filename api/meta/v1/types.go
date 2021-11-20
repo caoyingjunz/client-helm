@@ -14,4 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package helm
+package v1
+
+// CreateOptions may be provided when creating an API object.
+type CreateOptions struct{}

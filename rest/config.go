@@ -14,4 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package helm
+package rest
+
+// Config holds the common attributes that can be passed to a helm client on
+// initialization.
+type Config struct {
+	KubeConfig string
+}
+
+func (c *Config) String() string {
+	return c.KubeConfig
+}

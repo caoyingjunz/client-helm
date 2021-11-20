@@ -14,4 +14,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package helm
+package v1
+
+type Helm struct {
+	Name       string `json:"name,omitempty"`
+	Namespace  string `json:"namespace,omitempty"`
+	Revision   string `json:"revision,omitempty"`
+	Updated    string `json:"updated,omitempty"`
+	Status     string `json:"status,omitempty"`
+	Chart      string `json:"chart,omitempty"`
+	AppVersion string `json:"app_version,omitempty"`
+}
+
+type HelmList struct {
+	// Items is the list of Helms.
+	Items []Helm `json:"items"`
+}

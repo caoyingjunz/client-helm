@@ -14,4 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package helm provides an interface and implementations for running helm commands.
 package helm
