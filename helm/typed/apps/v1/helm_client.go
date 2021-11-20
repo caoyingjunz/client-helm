@@ -16,50 +16,31 @@ limitations under the License.
 
 package v1
 
-import (
-	"context"
+import "github.com/caoyingjunz/client-helm/rest"
 
-	"github.com/caoyingjunz/client-helm/api/apps/v1"
-	metav1 "github.com/caoyingjunz/client-helm/api/meta/v1"
-)
-
-// A group's client should implement this interface.
-type HelmGetter interface {
-	Helm(namespace string) HelmInterface
+type AppsV1Interface interface {
+	HelmsGetter
 }
 
-// HelmInterface has methods to work with Helm resources.
-type HelmInterface interface {
-	Create(ctx context.Context, opts metav1.CreateOptions) error
-	List(ctx context.Context) (*v1.HelmList, error)
-	Get(ctx context.Context) (*v1.Helm, error)
-
-	HelmExpansion
+type AppsV1Client struct {
+	restConfig rest.Config
 }
 
-// helm implements HelmInterface
-type helm struct {
-	ns string
+func (c *AppsV1Client) Helms(namespace string) HelmInterface {
+	return newHelms(c.restConfig, namespace)
 }
 
-func newHelm(namespace string) *helm {
-	return &helm{
-		ns: namespace,
+// NewForConfig creates a new Helm AppsV1Client for the given config.
+func NewForConfig(config *rest.Config) (*AppsV1Client, error) {
+	return &AppsV1Client{*config}, nil
+}
+
+// NewForConfigOrDie creates a new AppsV1Client for the given config and
+// panics if there is an error in the config.
+func NewForConfigOrDie(config *rest.Config) *AppsV1Client {
+	client, err := NewForConfig(config)
+	if err != nil {
+		panic(err)
 	}
-}
-
-func (c *helm) Create(ctx context.Context, opts metav1.CreateOptions) error {
-	// TODO
-	return nil
-}
-
-// List returns the list of Helms that match those ns
-func (c *helm) List(ctx context.Context) (*v1.HelmList, error) {
-	// TODO
-	return nil, nil
-}
-
-func (c *helm) Get(ctx context.Context) (*v1.Helm, error) {
-	// TODO
-	return nil, nil
+	return client
 }

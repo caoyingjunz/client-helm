@@ -16,15 +16,40 @@ limitations under the License.
 
 package helm
 
+import (
+	v1 "github.com/caoyingjunz/client-helm/helm/typed/apps/v1"
+	"github.com/caoyingjunz/client-helm/rest"
+)
+
 type Interface interface {
-	List()
+	Helms() v1.HelmInterface
 }
 
 // Clientset contains the clients for groups. Each group maybe has exactly one
 // version included in a Clientset.
 type Clientset struct {
+	restConfig *rest.Config
+
+	helm v1.AppsV1Interface
 }
 
-func (c Clientset) List() {
+// NewForConfig creates a new Clientset for the given config.
+func NewForConfig(c *rest.Config) (*Clientset, error) {
+	var cs Clientset
+	var err error
+	cs.helm, err = v1.NewForConfig(c)
+	if err != nil {
+		return nil, err
+	}
+	return &cs, nil
+}
 
+// NewForConfigOrDie creates a new Clientset for the given config and
+// panics if there is an error in the config.
+func NewForConfigOrDie(c *rest.Config) *Clientset {
+	cs, err := NewForConfig(c)
+	if err != nil {
+		panic(err)
+	}
+	return cs
 }
