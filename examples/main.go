@@ -35,10 +35,10 @@ func main() {
 		panic(err)
 	}
 
-	releases, err := clientSet.AppsV1().Helms("").List(context.TODO(), metav1.ListOptions{})
+	releases, err := clientSet.AppsV1().Helms("kubez-sysns").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
 
-	fmt.Printf("There are %d helm relase in the cluster\n", len(releases.Items))
+	fmt.Println(fmt.Sprintf("%+v", releases.Items))
 }
