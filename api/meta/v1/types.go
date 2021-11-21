@@ -18,3 +18,10 @@ package v1
 
 // CreateOptions may be provided when creating an API object.
 type CreateOptions struct{}
+
+type ListOptions struct{}
+
+// GetOptions is the standard query options to the standard REST get call.
+type GetOptions struct {
+	ResourceVersion string `json:"resourceVersion,omitempty"`
+}
