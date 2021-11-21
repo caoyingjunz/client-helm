@@ -18,10 +18,19 @@ package v1
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+
+	"k8s.io/utils/exec"
 
 	"github.com/caoyingjunz/client-helm/api/apps/v1"
 	metav1 "github.com/caoyingjunz/client-helm/api/meta/v1"
+	utilhelm "github.com/caoyingjunz/client-helm/pkg/util/helm"
 	"github.com/caoyingjunz/client-helm/rest"
+)
+
+const (
+	defaultNamespace = "default"
 )
 
 // A group's client should implement this interface.
@@ -42,12 +51,18 @@ type HelmInterface interface {
 type helm struct {
 	config string
 	ns     string
+	cmd    utilhelm.Interface
 }
 
 func newHelms(c rest.Config, namespace string) *helm {
+	if len(namespace) == 0 {
+		namespace = defaultNamespace
+	}
+
 	return &helm{
 		config: c.String(),
 		ns:     namespace,
+		cmd:    utilhelm.New(exec.New()),
 	}
 }
 
@@ -58,8 +73,19 @@ func (c *helm) Create(ctx context.Context, opts metav1.CreateOptions) error {
 
 // List returns the list of Helms that match those ns
 func (c *helm) List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error) {
-	// TODO
-	return nil, nil
+	out, err := c.cmd.List(c.ns)
+	if err != nil {
+		return nil, err
+	}
+
+	var hs []v1.Helm
+	if err = json.Unmarshal(out, &hs); err != nil {
+		return nil, fmt.Errorf("unmarshal to helms failed %v", err)
+	}
+
+	return &v1.HelmList{
+		Items: hs,
+	}, nil
 }
 
 func (c *helm) Get(ctx context.Context, opts metav1.GetOptions) (*v1.Helm, error) {

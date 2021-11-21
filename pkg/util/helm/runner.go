@@ -17,7 +17,8 @@ limitations under the License.
 package helm
 
 import (
-	"bytes"
+	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -27,11 +28,19 @@ import (
 )
 
 type Interface interface {
-	List(namespace Namespace, buffer *bytes.Buffer) error
+	List(namespace string) ([]byte, error)
 }
 
 const (
 	cmdHelm string = "helm"
+)
+
+type operation string
+
+const (
+	opList   operation = "list"
+	opDelete operation = "delete"
+	opCreate operation = "create"
 )
 
 // Namespace represents different ns for helm (k8s)
@@ -49,24 +58,47 @@ func New(exec utilexec.Interface) Interface {
 	}
 }
 
-func (runner *runner) List(namespace Namespace, buffer *bytes.Buffer) error {
+func (runner *runner) List(namespace string) ([]byte, error) {
 	runner.mu.Lock()
 	defer runner.mu.Unlock()
 
 	trace := utiltrace.New("helm list")
 	defer trace.LogIfLong(2 * time.Second)
 
-	// run and return
-	args := []string{"-n", string(namespace)}
-	klog.V(4).Infof("running %s %v", cmdHelm, args)
-	cmd := runner.exec.Command(cmdHelm, args...)
-	cmd.SetStdout(buffer)
-	stderrBuffer := bytes.NewBuffer(nil)
-	cmd.SetStderr(stderrBuffer)
+	fullArgs := makeFullArgs(namespace)
+	fullArgs = append(fullArgs, []string{"-o", "json"}...)
 
-	err := cmd.Run()
-	if err != nil {
-		stderrBuffer.WriteTo(buffer)
+	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	out, err := runner.runContext(ctx, opList, fullArgs)
+	if ctx.Err() == context.DeadlineExceeded {
+		return nil, fmt.Errorf("timed out while list release")
 	}
-	return err
+	if err == nil {
+		return out, nil
+	}
+
+	return nil, fmt.Errorf("error list release: %v: %s", err, out)
+}
+
+func makeFullArgs(namespace string, args ...string) []string {
+	return append(args, []string{"-n", namespace}...)
+}
+
+func (runner *runner) run(op operation, args []string) ([]byte, error) {
+	return runner.runContext(context.TODO(), op, args)
+}
+
+func (runner *runner) runContext(ctx context.Context, op operation, args []string) ([]byte, error) {
+	fullArgs := []string{string(op)}
+	fullArgs = append(fullArgs, args...)
+
+	klog.V(5).Infof("running helm: %s %v", cmdHelm, fullArgs)
+	if ctx == nil {
+		return runner.exec.Command(cmdHelm, fullArgs...).CombinedOutput()
+	}
+
+	return runner.exec.CommandContext(ctx, cmdHelm, fullArgs...).CombinedOutput()
 }
