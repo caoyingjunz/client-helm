@@ -32,8 +32,8 @@ type HelmsGetter interface {
 // HelmInterface has methods to work with Helm resources.
 type HelmInterface interface {
 	Create(ctx context.Context, opts metav1.CreateOptions) error
-	List(ctx context.Context) (*v1.HelmList, error)
-	Get(ctx context.Context) (*v1.Helm, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error)
+	Get(ctx context.Context, opts metav1.GetOptions) (*v1.Helm, error)
 
 	HelmExpansion
 }
@@ -57,12 +57,12 @@ func (c *helm) Create(ctx context.Context, opts metav1.CreateOptions) error {
 }
 
 // List returns the list of Helms that match those ns
-func (c *helm) List(ctx context.Context) (*v1.HelmList, error) {
+func (c *helm) List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error) {
 	// TODO
 	return nil, nil
 }
 
-func (c *helm) Get(ctx context.Context) (*v1.Helm, error) {
+func (c *helm) Get(ctx context.Context, opts metav1.GetOptions) (*v1.Helm, error) {
 	// TODO
 	return nil, nil
 }

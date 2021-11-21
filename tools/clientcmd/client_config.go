@@ -28,7 +28,7 @@ import (
 // are passed in we fallback to ~/.kube/config.
 func BuildConfigFromFlags(kubeconfigPath string) (*restclient.Config, error) {
 	if kubeconfigPath == "" {
-		klog.Warningf("--kubeconfig was not specified.  This might not work.")
+		klog.Warningf("--kubeconfig was not specified. This might not work.")
 	}
 
 	return &restclient.Config{KubeConfig: kubeconfigPath}, nil
