@@ -38,7 +38,7 @@ func HelmClientFor(c Config) *HelmClient {
 		Config: Config{
 			KubeConfig: c.KubeConfig,
 		},
-		Client: utilhelm.New(exec.New()),
+		Client: utilhelm.New(exec.New(), c.KubeConfig),
 	}
 }
 

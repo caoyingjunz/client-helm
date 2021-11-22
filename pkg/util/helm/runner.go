@@ -50,11 +50,13 @@ type Namespace string
 type runner struct {
 	mu   sync.Mutex
 	exec utilexec.Interface
+	config string
 }
 
-func New(exec utilexec.Interface) Interface {
+func New(exec utilexec.Interface, config string) Interface {
 	return &runner{
 		exec: exec,
+		config: config,
 	}
 }
 
@@ -66,7 +68,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	defer trace.LogIfLong(2 * time.Second)
 
 	fullArgs := makeFullArgs(namespace)
-	fullArgs = append(fullArgs, []string{"-o", "json"}...)
+	fullArgs = append(fullArgs, []string{"-o", "json", "--kubeconfig", runner.config}...)
 
 	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
