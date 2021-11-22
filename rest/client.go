@@ -23,27 +23,17 @@ import (
 )
 
 type Interface interface {
-	GetConfig() string
 	GetClient() utilhelm.Interface
 }
 
 type HelmClient struct {
-	Config
-
 	Client utilhelm.Interface
 }
 
 func HelmClientFor(c Config) *HelmClient {
 	return &HelmClient{
-		Config: Config{
-			KubeConfig: c.KubeConfig,
-		},
-		Client: utilhelm.New(exec.New()),
+		Client: utilhelm.New(exec.New(), c.KubeConfig),
 	}
-}
-
-func (hc *HelmClient) GetConfig() string {
-	return hc.KubeConfig
 }
 
 func (hc *HelmClient) GetClient() utilhelm.Interface {

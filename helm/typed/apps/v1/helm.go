@@ -46,7 +46,6 @@ type HelmInterface interface {
 
 // helm implements HelmInterface
 type helm struct {
-	kubeConfig string
 	helmClient utilhelm.Interface
 	ns         string
 }
@@ -59,7 +58,6 @@ func newHelms(cc *AppsV1Client, namespace string) *helm {
 
 	client := cc.HelmClient()
 	return &helm{
-		kubeConfig: client.GetConfig(),
 		helmClient: client.GetClient(),
 		ns:         namespace,
 	}
