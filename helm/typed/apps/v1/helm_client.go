@@ -16,31 +16,29 @@ limitations under the License.
 
 package v1
 
-import "github.com/caoyingjunz/client-helm/rest"
+import (
+	"github.com/caoyingjunz/client-helm/rest"
+)
 
 type AppsV1Interface interface {
 	HelmsGetter
 }
 
 type AppsV1Client struct {
-	restConfig rest.Config
+	helmClient rest.Interface
 }
 
 func (c *AppsV1Client) Helms(namespace string) HelmInterface {
-	return newHelms(c.restConfig, namespace)
+	return newHelms(c, namespace)
+}
+
+// HelmClient returns a HelmClient that is used to communicate
+// with helm server by this client implementation.
+func (c *AppsV1Client) HelmClient() rest.Interface {
+	return c.helmClient
 }
 
 // NewForConfig creates a new Helm AppsV1Client for the given config.
-func NewForConfig(config *rest.Config) (*AppsV1Client, error) {
-	return &AppsV1Client{*config}, nil
-}
-
-// NewForConfigOrDie creates a new AppsV1Client for the given config and
-// panics if there is an error in the config.
-func NewForConfigOrDie(config *rest.Config) *AppsV1Client {
-	client, err := NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-	return client
+func NewForConfig(client rest.Interface) (*AppsV1Client, error) {
+	return &AppsV1Client{helmClient: client}, nil
 }

@@ -21,12 +21,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"k8s.io/utils/exec"
-
 	"github.com/caoyingjunz/client-helm/api/apps/v1"
 	metav1 "github.com/caoyingjunz/client-helm/api/meta/v1"
 	utilhelm "github.com/caoyingjunz/client-helm/pkg/util/helm"
-	"github.com/caoyingjunz/client-helm/rest"
 )
 
 const (
@@ -49,20 +46,22 @@ type HelmInterface interface {
 
 // helm implements HelmInterface
 type helm struct {
-	config string
-	ns     string
-	cmd    utilhelm.Interface
+	kubeConfig string
+	helmClient utilhelm.Interface
+	ns         string
 }
 
-func newHelms(c rest.Config, namespace string) *helm {
+// newHelms returns s Helms
+func newHelms(cc *AppsV1Client, namespace string) *helm {
 	if len(namespace) == 0 {
 		namespace = defaultNamespace
 	}
 
+	client := cc.HelmClient()
 	return &helm{
-		config: c.String(),
-		ns:     namespace,
-		cmd:    utilhelm.New(exec.New(), c.String()),
+		kubeConfig: client.GetConfig(),
+		helmClient: client.GetClient(),
+		ns:         namespace,
 	}
 }
 
@@ -73,7 +72,7 @@ func (c *helm) Create(ctx context.Context, opts metav1.CreateOptions) error {
 
 // List returns the list of Helms that match those ns
 func (c *helm) List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error) {
-	out, err := c.cmd.List(c.ns)
+	out, err := c.helmClient.List(c.ns)
 	if err != nil {
 		return nil, err
 	}

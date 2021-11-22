@@ -15,9 +15,3 @@ limitations under the License.
 */
 
 package rest
-
-// Config holds the common attributes that can be passed to a helm client on
-// initialization.
-type Config struct {
-	KubeConfig string
-}
