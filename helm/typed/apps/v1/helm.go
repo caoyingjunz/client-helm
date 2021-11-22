@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
 	"github.com/caoyingjunz/client-helm/api/apps/v1"
 	metav1 "github.com/caoyingjunz/client-helm/api/meta/v1"
 	utilhelm "github.com/caoyingjunz/client-helm/pkg/util/helm"
@@ -51,14 +52,15 @@ type helm struct {
 }
 
 // newHelms returns s Helms
-func newHelms(ac *AppsV1Client, namespace string) *helm {
+func newHelms(cc *AppsV1Client, namespace string) *helm {
 	if len(namespace) == 0 {
 		namespace = defaultNamespace
 	}
 
+	client := cc.HelmClient()
 	return &helm{
-		kubeConfig: ac.GetConfig(),
-		helmClient: ac.GetClient(),
+		kubeConfig: client.GetConfig(),
+		helmClient: client.GetClient(),
 		ns:         namespace,
 	}
 }

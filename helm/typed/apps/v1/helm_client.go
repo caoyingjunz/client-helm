@@ -25,14 +25,20 @@ type AppsV1Interface interface {
 }
 
 type AppsV1Client struct {
-	rest.Interface
+	helmClient rest.Interface
 }
 
 func (c *AppsV1Client) Helms(namespace string) HelmInterface {
 	return newHelms(c, namespace)
 }
 
+// HelmClient returns a HelmClient that is used to communicate
+// with helm server by this client implementation.
+func (c *AppsV1Client) HelmClient() rest.Interface {
+	return c.helmClient
+}
+
 // NewForConfig creates a new Helm AppsV1Client for the given config.
 func NewForConfig(client rest.Interface) (*AppsV1Client, error) {
-	return &AppsV1Client{client}, nil
+	return &AppsV1Client{helmClient: client}, nil
 }
