@@ -28,7 +28,7 @@ import (
 )
 
 type Interface interface {
-	List(namespace string) ([]byte, error)
+	List(namespace, config string) ([]byte, error)
 }
 
 const (
@@ -58,7 +58,7 @@ func New(exec utilexec.Interface) Interface {
 	}
 }
 
-func (runner *runner) List(namespace string) ([]byte, error) {
+func (runner *runner) List(namespace, config string) ([]byte, error) {
 	runner.mu.Lock()
 	defer runner.mu.Unlock()
 
@@ -66,7 +66,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	defer trace.LogIfLong(2 * time.Second)
 
 	fullArgs := makeFullArgs(namespace)
-	fullArgs = append(fullArgs, []string{"-o", "json"}...)
+	fullArgs = append(fullArgs, []string{"-o", "json", "--kubeconfig", config}...)
 
 	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)

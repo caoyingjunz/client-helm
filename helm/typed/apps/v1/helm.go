@@ -73,7 +73,7 @@ func (c *helm) Create(ctx context.Context, opts metav1.CreateOptions) error {
 
 // List returns the list of Helms that match those ns
 func (c *helm) List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error) {
-	out, err := c.cmd.List(c.ns)
+	out, err := c.cmd.List(c.ns, c.config)
 	if err != nil {
 		return nil, err
 	}
