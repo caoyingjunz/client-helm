@@ -14,25 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1
-
-import (
-	"github.com/caoyingjunz/client-helm/rest"
-)
-
-type AppsV1Interface interface {
-	HelmsGetter
-}
-
-type AppsV1Client struct {
-	rest.Interface
-}
-
-func (c *AppsV1Client) Helms(namespace string) HelmInterface {
-	return newHelms(c, namespace)
-}
-
-// NewForConfig creates a new Helm AppsV1Client for the given config.
-func NewForConfig(client rest.Interface) (*AppsV1Client, error) {
-	return &AppsV1Client{client}, nil
-}
+package rest

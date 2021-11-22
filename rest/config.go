@@ -21,7 +21,3 @@ package rest
 type Config struct {
 	KubeConfig string
 }
-
-func (c *Config) String() string {
-	return c.KubeConfig
-}

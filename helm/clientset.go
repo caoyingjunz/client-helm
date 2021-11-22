@@ -29,8 +29,7 @@ type Interface interface {
 // version included in a Clientset.
 type Clientset struct {
 	restConfig *rest.Config
-
-	appsV1 v1.AppsV1Interface
+	appsV1     v1.AppsV1Interface
 }
 
 func (c *Clientset) AppsV1() v1.AppsV1Interface {
@@ -39,12 +38,15 @@ func (c *Clientset) AppsV1() v1.AppsV1Interface {
 
 // NewForConfig creates a new Clientset for the given config.
 func NewForConfig(c *rest.Config) (*Clientset, error) {
+	client := rest.HelmClientFor(*c)
+
 	var cs Clientset
 	var err error
-	cs.appsV1, err = v1.NewForConfig(c)
+	cs.appsV1, err = v1.NewForConfig(client)
 	if err != nil {
 		return nil, err
 	}
+
 	return &cs, nil
 }
 

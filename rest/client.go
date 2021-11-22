@@ -14,25 +14,38 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1
+package rest
 
 import (
-	"github.com/caoyingjunz/client-helm/rest"
+	"k8s.io/utils/exec"
+
+	utilhelm "github.com/caoyingjunz/client-helm/pkg/util/helm"
 )
 
-type AppsV1Interface interface {
-	HelmsGetter
+type Interface interface {
+	GetConfig() string
+	GetClient() utilhelm.Interface
 }
 
-type AppsV1Client struct {
-	rest.Interface
+type HelmClient struct {
+	Config
+
+	Client utilhelm.Interface
 }
 
-func (c *AppsV1Client) Helms(namespace string) HelmInterface {
-	return newHelms(c, namespace)
+func HelmClientFor(c Config) *HelmClient {
+	return &HelmClient{
+		Config: Config{
+			KubeConfig: c.KubeConfig,
+		},
+		Client: utilhelm.New(exec.New()),
+	}
 }
 
-// NewForConfig creates a new Helm AppsV1Client for the given config.
-func NewForConfig(client rest.Interface) (*AppsV1Client, error) {
-	return &AppsV1Client{client}, nil
+func (hc *HelmClient) GetConfig() string {
+	return hc.KubeConfig
+}
+
+func (hc *HelmClient) GetClient() utilhelm.Interface {
+	return hc.Client
 }
