@@ -26,7 +26,7 @@ import (
 )
 
 func main() {
-	config, err := clientcmd.BuildConfigFromFlags("/Users/caoyuan/.kube/config")
+	config, err := clientcmd.BuildConfigFromFlags("/Users/jimingyu/.kube/config")
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +35,7 @@ func main() {
 		panic(err)
 	}
 
-	releases, err := clientSet.AppsV1().Helms("kubez-sysns").List(context.TODO(), metav1.ListOptions{})
+	releases, err := clientSet.AppsV1().Helms("default").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
