@@ -19,6 +19,7 @@ package helm
 import (
 	"context"
 	"fmt"
+	"github.com/caoyingjunz/client-helm/rest"
 	"sync"
 	"time"
 
@@ -50,11 +51,13 @@ type Namespace string
 type runner struct {
 	mu   sync.Mutex
 	exec utilexec.Interface
+	config string
 }
 
-func New(exec utilexec.Interface) Interface {
+func New(exec utilexec.Interface,c rest.Config) Interface {
 	return &runner{
 		exec: exec,
+		config: c.String(),
 	}
 }
 
@@ -64,8 +67,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 
 	trace := utiltrace.New("helm list")
 	defer trace.LogIfLong(2 * time.Second)
-
-	fullArgs := makeFullArgs(namespace)
+	fullArgs := runner.makeFullArgs(namespace)
 	fullArgs = append(fullArgs, []string{"-o", "json"}...)
 
 	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
@@ -83,7 +85,8 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	return nil, fmt.Errorf("error list release: %v: %s", err, out)
 }
 
-func makeFullArgs(namespace string, args ...string) []string {
+func (runner *runner)makeFullArgs(namespace string, args ...string) []string {
+	args = append(args, []string{"--kubeconfig", runner.config}...)
 	return append(args, []string{"-n", namespace}...)
 }
 

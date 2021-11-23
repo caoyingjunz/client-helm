@@ -62,7 +62,7 @@ func newHelms(c rest.Config, namespace string) *helm {
 	return &helm{
 		config: c.String(),
 		ns:     namespace,
-		cmd:    utilhelm.New(exec.New()),
+		cmd:    utilhelm.New(exec.New(),c),
 	}
 }
 
