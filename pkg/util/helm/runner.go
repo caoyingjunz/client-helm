@@ -28,6 +28,8 @@ import (
 )
 
 type Interface interface {
+	Delete(namespace string, name string) error
+	Get(namespace string, name string) ([]byte, error)
 	List(namespace string) ([]byte, error)
 }
 
@@ -60,6 +62,54 @@ func New(exec utilexec.Interface, kubeconfig string) Interface {
 	}
 }
 
+func (runner *runner) Delete(namespace string, name string) error {
+	runner.mu.Lock()
+	defer runner.mu.Unlock()
+
+	trace := utiltrace.New("helm delete")
+	defer trace.LogIfLong(2 * time.Second)
+
+	fullArgs := runner.makeFullArgs(namespace, name)
+	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	out, err := runner.runContext(ctx, opDelete, fullArgs)
+	if ctx.Err() == context.DeadlineExceeded {
+		return fmt.Errorf("timed out while delete release %s", name)
+	}
+	if err == nil {
+		return nil
+	}
+
+	return fmt.Errorf("error delete release: %v: %s", err, out)
+}
+
+func (runner *runner) Get(namespace string, name string) ([]byte, error) {
+	runner.mu.Lock()
+	defer runner.mu.Unlock()
+
+	trace := utiltrace.New("helm get")
+	defer trace.LogIfLong(2 * time.Second)
+
+	fullArgs := runner.makeFullArgs(namespace, "-f", fmt.Sprintf("^%s$", name))
+	fullArgs = append(fullArgs, []string{"-o", "json"}...)
+
+	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	out, err := runner.runContext(ctx, opList, fullArgs)
+	if ctx.Err() == context.DeadlineExceeded {
+		return nil, fmt.Errorf("timed out while get release")
+	}
+	if err == nil {
+		return out, nil
+	}
+
+	return nil, fmt.Errorf("error get release: %v: %s", err, out)
+}
+
 func (runner *runner) List(namespace string) ([]byte, error) {
 	runner.mu.Lock()
 	defer runner.mu.Unlock()
@@ -85,7 +135,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	return nil, fmt.Errorf("error list release: %v: %s", err, out)
 }
 
-func (runner *runner)makeFullArgs(namespace string, args ...string) []string {
+func (runner *runner) makeFullArgs(namespace string, args ...string) []string {
 	if len(runner.kubeConfig) != 0 {
 		args = append(args, []string{"--kubeconfig", runner.kubeConfig}...)
 	}
