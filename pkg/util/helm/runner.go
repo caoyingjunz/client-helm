@@ -49,15 +49,15 @@ type Namespace string
 
 // runner implements Interface in terms of exec("helm").
 type runner struct {
-	mu   sync.Mutex
-	exec utilexec.Interface
-	config string
+	mu         sync.Mutex
+	exec       utilexec.Interface
+	kubeConfig string
 }
 
-func New(exec utilexec.Interface,c rest.Config) Interface {
+func New(exec utilexec.Interface, kubeconfig string) Interface {
 	return &runner{
-		exec: exec,
-		config: c.String(),
+		exec:       exec,
+		kubeConfig: kubeconfig,
 	}
 }
 

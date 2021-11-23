@@ -16,8 +16,26 @@ limitations under the License.
 
 package rest
 
-// Config holds the common attributes that can be passed to a helm client on
-// initialization.
-type Config struct {
-	KubeConfig string
+import (
+	"k8s.io/utils/exec"
+
+	utilhelm "github.com/caoyingjunz/client-helm/pkg/util/helm"
+)
+
+type Interface interface {
+	GetClient() utilhelm.Interface
+}
+
+type HelmClient struct {
+	Client utilhelm.Interface
+}
+
+func HelmClientFor(c Config) *HelmClient {
+	return &HelmClient{
+		Client: utilhelm.New(exec.New(), c.KubeConfig),
+	}
+}
+
+func (hc *HelmClient) GetClient() utilhelm.Interface {
+	return hc.Client
 }
