@@ -14,16 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1
+package helm
 
-// CreateOptions may be provided when creating an API object.
-type CreateOptions struct{}
+import "errors"
 
-type DeleteOptions struct{}
-
-// GetOptions is the standard query options to the standard REST get call.
-type GetOptions struct {
-	ResourceVersion string `json:"resourceVersion,omitempty"`
-}
-
-type ListOptions struct{}
+var (
+	// ErrReleaseNotFound returns a "release not found error".
+	ErrReleaseNotFound = errors.New("release not found")
+)

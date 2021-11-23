@@ -38,8 +38,9 @@ type HelmsGetter interface {
 // HelmInterface has methods to work with Helm resources.
 type HelmInterface interface {
 	Create(ctx context.Context, opts metav1.CreateOptions) error
+	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Helm, error)
 	List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error)
-	Get(ctx context.Context, opts metav1.GetOptions) (*v1.Helm, error)
 
 	HelmExpansion
 }
@@ -68,6 +69,27 @@ func (c *helm) Create(ctx context.Context, opts metav1.CreateOptions) error {
 	return nil
 }
 
+func (c *helm) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+	return c.helmClient.Delete(c.ns, name)
+}
+
+func (c *helm) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Helm, error) {
+	out, err := c.helmClient.Get(c.ns, name)
+	if err != nil {
+		return nil, err
+	}
+
+	var hs []v1.Helm
+	if err = json.Unmarshal(out, &hs); err != nil {
+		return nil, fmt.Errorf("unmarshal to helms failed %v", err)
+	}
+	if len(hs) == 0 {
+		return nil, utilhelm.ErrReleaseNotFound
+	}
+
+	return &hs[0], nil
+}
+
 // List returns the list of Helms that match those ns
 func (c *helm) List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error) {
 	out, err := c.helmClient.List(c.ns)
@@ -83,9 +105,4 @@ func (c *helm) List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList,
 	return &v1.HelmList{
 		Items: hs,
 	}, nil
-}
-
-func (c *helm) Get(ctx context.Context, opts metav1.GetOptions) (*v1.Helm, error) {
-	// TODO
-	return nil, nil
 }
