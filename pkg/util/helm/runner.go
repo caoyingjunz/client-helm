@@ -69,7 +69,7 @@ func (runner *runner) Delete(namespace string, name string) error {
 	trace := utiltrace.New("helm delete")
 	defer trace.LogIfLong(2 * time.Second)
 
-	fullArgs := makeFullArgs(namespace, name)
+	fullArgs := runner.makeFullArgs(namespace, name)
 	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
@@ -92,7 +92,7 @@ func (runner *runner) Get(namespace string, name string) ([]byte, error) {
 	trace := utiltrace.New("helm get")
 	defer trace.LogIfLong(2 * time.Second)
 
-	fullArgs := makeFullArgs(namespace, "-f", fmt.Sprintf("^%s$", name))
+	fullArgs := runner.makeFullArgs(namespace, "-f", fmt.Sprintf("^%s$", name))
 	fullArgs = append(fullArgs, []string{"-o", "json"}...)
 
 	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
@@ -135,7 +135,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	return nil, fmt.Errorf("error list release: %v: %s", err, out)
 }
 
-func (runner *runner)makeFullArgs(namespace string, args ...string) []string {
+func (runner *runner) makeFullArgs(namespace string, args ...string) []string {
 	if len(runner.kubeConfig) != 0 {
 		args = append(args, []string{"--kubeconfig", runner.kubeConfig}...)
 	}
