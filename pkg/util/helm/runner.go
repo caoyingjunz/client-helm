@@ -86,7 +86,9 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 }
 
 func (runner *runner)makeFullArgs(namespace string, args ...string) []string {
-	args = append(args, []string{"--kubeconfig", runner.kubeConfig}...)
+	if len(runner.kubeConfig) != 0 {
+		args = append(args, []string{"--kubeconfig", runner.kubeConfig}...)
+	}
 	return append(args, []string{"-n", namespace}...)
 }
 
