@@ -19,7 +19,6 @@ package helm
 import (
 	"context"
 	"fmt"
-	"github.com/caoyingjunz/client-helm/rest"
 	"sync"
 	"time"
 
@@ -67,6 +66,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 
 	trace := utiltrace.New("helm list")
 	defer trace.LogIfLong(2 * time.Second)
+
 	fullArgs := runner.makeFullArgs(namespace)
 	fullArgs = append(fullArgs, []string{"-o", "json"}...)
 
@@ -86,7 +86,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 }
 
 func (runner *runner)makeFullArgs(namespace string, args ...string) []string {
-	args = append(args, []string{"--kubeconfig", runner.config}...)
+	args = append(args, []string{"--kubeconfig", runner.kubeConfig}...)
 	return append(args, []string{"-n", namespace}...)
 }
 
