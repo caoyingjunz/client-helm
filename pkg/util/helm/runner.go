@@ -117,7 +117,7 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	trace := utiltrace.New("helm list")
 	defer trace.LogIfLong(2 * time.Second)
 
-	fullArgs := makeFullArgs(namespace)
+	fullArgs := runner.makeFullArgs(namespace)
 	fullArgs = append(fullArgs, []string{"-o", "json"}...)
 
 	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
@@ -135,7 +135,10 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	return nil, fmt.Errorf("error list release: %v: %s", err, out)
 }
 
-func makeFullArgs(namespace string, args ...string) []string {
+func (runner *runner)makeFullArgs(namespace string, args ...string) []string {
+	if len(runner.kubeConfig) != 0 {
+		args = append(args, []string{"--kubeconfig", runner.kubeConfig}...)
+	}
 	return append(args, []string{"-n", namespace}...)
 }
 
