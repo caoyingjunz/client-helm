@@ -31,57 +31,57 @@ const (
 )
 
 // A group's client should implement this interface.
-type HelmsGetter interface {
-	Helms(namespace string) HelmInterface
+type ReleasesGetter interface {
+	Releases(namespace string) ReleaseInterface
 }
 
-// HelmInterface has methods to work with Helm resources.
-type HelmInterface interface {
+// ReleaseInterface has methods to work with release resources.
+type ReleaseInterface interface {
 	Create(ctx context.Context, opts metav1.CreateOptions) error
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
-	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Helm, error)
-	List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error)
+	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Release, error)
+	List(ctx context.Context, opts metav1.ListOptions) (*v1.ReleaseList, error)
 
-	HelmExpansion
+	ReleaseExpansion
 }
 
-// helm implements HelmInterface
-type helm struct {
-	helmClient utilhelm.Interface
-	ns         string
+// release implements ReleaseInterface
+type release struct {
+	client utilhelm.Interface
+	ns     string
 }
 
-// newHelms returns s Helms
-func newHelms(cc *AppsV1Client, namespace string) *helm {
+// newReleases returns s release
+func newReleases(cc *AppsV1Client, namespace string) *release {
 	if len(namespace) == 0 {
 		namespace = defaultNamespace
 	}
 
-	client := cc.HelmClient()
-	return &helm{
-		helmClient: client.GetClient(),
-		ns:         namespace,
+	c := cc.Client()
+	return &release{
+		client: c.GetClient(),
+		ns:     namespace,
 	}
 }
 
-func (c *helm) Create(ctx context.Context, opts metav1.CreateOptions) error {
+func (c *release) Create(ctx context.Context, opts metav1.CreateOptions) error {
 	// TODO
 	return nil
 }
 
-func (c *helm) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	return c.helmClient.Delete(c.ns, name)
+func (c *release) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
+	return c.client.Delete(c.ns, name)
 }
 
-func (c *helm) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Helm, error) {
-	out, err := c.helmClient.Get(c.ns, name)
+func (c *release) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Release, error) {
+	out, err := c.client.Get(c.ns, name)
 	if err != nil {
 		return nil, err
 	}
 
-	var hs []v1.Helm
+	var hs []v1.Release
 	if err = json.Unmarshal(out, &hs); err != nil {
-		return nil, fmt.Errorf("unmarshal to helms failed %v", err)
+		return nil, fmt.Errorf("unmarshal to release failed %v", err)
 	}
 	if len(hs) == 0 {
 		return nil, utilhelm.ErrReleaseNotFound
@@ -91,18 +91,18 @@ func (c *helm) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v
 }
 
 // List returns the list of Helms that match those ns
-func (c *helm) List(ctx context.Context, opts metav1.ListOptions) (*v1.HelmList, error) {
-	out, err := c.helmClient.List(c.ns)
+func (c *release) List(ctx context.Context, opts metav1.ListOptions) (*v1.ReleaseList, error) {
+	out, err := c.client.List(c.ns)
 	if err != nil {
 		return nil, err
 	}
 
-	var hs []v1.Helm
+	var hs []v1.Release
 	if err = json.Unmarshal(out, &hs); err != nil {
-		return nil, fmt.Errorf("unmarshal to helms failed %v", err)
+		return nil, fmt.Errorf("unmarshal to release failed %v", err)
 	}
 
-	return &v1.HelmList{
+	return &v1.ReleaseList{
 		Items: hs,
 	}, nil
 }

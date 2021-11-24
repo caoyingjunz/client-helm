@@ -30,12 +30,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientSet, err := helm.NewForConfig(config)
+	helmClient, err := helm.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
 
-	releases, err := clientSet.AppsV1().Helms("kubez-sysns").List(context.TODO(), metav1.ListOptions{})
+	releases, err := helmClient.AppsV1().Releases("kubez-sysns").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
