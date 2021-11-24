@@ -22,6 +22,7 @@ import (
 
 type AppsV1Interface interface {
 	ReleasesGetter
+	ReposGetter
 }
 
 type AppsV1Client struct {
@@ -30,6 +31,10 @@ type AppsV1Client struct {
 
 func (c *AppsV1Client) Releases(namespace string) ReleaseInterface {
 	return newReleases(c, namespace)
+}
+
+func (c *AppsV1Client) Repos(namespace string) RepoInterface {
+	return newRepos(c, namespace)
 }
 
 // Client returns a Client that is used to communicate

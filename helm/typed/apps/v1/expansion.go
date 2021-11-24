@@ -17,3 +17,5 @@ limitations under the License.
 package v1
 
 type ReleaseExpansion interface{}
+
+type RepoExpansion interface{}
