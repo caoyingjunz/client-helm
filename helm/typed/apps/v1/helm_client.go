@@ -22,6 +22,7 @@ import (
 
 type AppsV1Interface interface {
 	HelmsGetter
+	SearchGetter
 }
 
 type AppsV1Client struct {
@@ -30,6 +31,10 @@ type AppsV1Client struct {
 
 func (c *AppsV1Client) Helms(namespace string) HelmInterface {
 	return newHelms(c, namespace)
+}
+
+func (c *AppsV1Client) Search(namespace string) SearchInterface {
+	return newSearch(c, namespace)
 }
 
 // HelmClient returns a HelmClient that is used to communicate
