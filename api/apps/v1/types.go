@@ -16,7 +16,7 @@ limitations under the License.
 
 package v1
 
-type Helm struct {
+type Release struct {
 	Name       string `json:"name,omitempty"`
 	Namespace  string `json:"namespace,omitempty"`
 	Revision   string `json:"revision,omitempty"`
@@ -26,9 +26,9 @@ type Helm struct {
 	AppVersion string `json:"app_version,omitempty"`
 }
 
-type HelmList struct {
-	// Items is the list of Helms.
-	Items []Helm `json:"items"`
+type ReleaseList struct {
+	// Items is the list of release.
+	Items []Release `json:"items"`
 }
 
 type SearchHub struct {

@@ -19,6 +19,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"path"
+
+	"k8s.io/client-go/util/homedir"
 
 	metav1 "github.com/caoyingjunz/client-helm/api/meta/v1"
 	"github.com/caoyingjunz/client-helm/helm"
@@ -26,16 +29,16 @@ import (
 )
 
 func main() {
-	config, err := clientcmd.BuildConfigFromFlags("/Users/caoyuan/.kube/config")
+	config, err := clientcmd.BuildConfigFromFlags(path.Join(homedir.HomeDir(), ".kube", "config"))
 	if err != nil {
 		panic(err)
 	}
-	clientSet, err := helm.NewForConfig(config)
+	helmClient, err := helm.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
 
-	releases, err := clientSet.AppsV1().Helms("kubez-sysns").List(context.TODO(), metav1.ListOptions{})
+	releases, err := helmClient.AppsV1().Releases("kubez-sysns").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}

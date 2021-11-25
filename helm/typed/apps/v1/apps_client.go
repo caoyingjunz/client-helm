@@ -21,29 +21,30 @@ import (
 )
 
 type AppsV1Interface interface {
-	HelmsGetter
-	SearchGetter
+	ReleasesGetter
+	ReposGetter
 }
 
 type AppsV1Client struct {
-	helmClient rest.Interface
+	client rest.Interface
 }
 
-func (c *AppsV1Client) Helms(namespace string) HelmInterface {
-	return newHelms(c, namespace)
-}
-
-func (c *AppsV1Client) Search(namespace string) SearchInterface {
-	return newSearch(c, namespace)
+func (c *AppsV1Client) Releases(namespace string) ReleaseInterface {
+	return newReleases(c, namespace)
 }
 
 // HelmClient returns a HelmClient that is used to communicate
+func (c *AppsV1Client) Repos(namespace string) RepoInterface {
+	return newRepos(c, namespace)
+}
+
+// Client returns a Client that is used to communicate
 // with helm server by this client implementation.
-func (c *AppsV1Client) HelmClient() rest.Interface {
-	return c.helmClient
+func (c *AppsV1Client) Client() rest.Interface {
+	return c.client
 }
 
 // NewForConfig creates a new Helm AppsV1Client for the given config.
 func NewForConfig(client rest.Interface) (*AppsV1Client, error) {
-	return &AppsV1Client{helmClient: client}, nil
+	return &AppsV1Client{client: client}, nil
 }

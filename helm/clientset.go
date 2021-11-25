@@ -22,7 +22,7 @@ import (
 )
 
 type Interface interface {
-	Helms() v1.HelmInterface
+	AppsV1() v1.AppsV1Interface
 }
 
 // Clientset contains the clients for groups. Each group maybe has exactly one
