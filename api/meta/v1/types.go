@@ -19,6 +19,8 @@ package v1
 // CreateOptions may be provided when creating an API object.
 type CreateOptions struct{}
 
+type InstallOptions struct{}
+
 type DeleteOptions struct{}
 
 // GetOptions is the standard query options to the standard REST get call.

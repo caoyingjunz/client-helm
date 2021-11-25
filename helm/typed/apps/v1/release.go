@@ -38,6 +38,7 @@ type ReleasesGetter interface {
 // ReleaseInterface has methods to work with release resources.
 type ReleaseInterface interface {
 	Create(ctx context.Context, opts metav1.CreateOptions) error
+	Install(ctx context.Context, name string, opts metav1.InstallOptions) error
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Release, error)
 	List(ctx context.Context, opts metav1.ListOptions) (*v1.ReleaseList, error)
@@ -66,6 +67,10 @@ func newReleases(cc *AppsV1Client, namespace string) *release {
 
 func (c *release) Create(ctx context.Context, opts metav1.CreateOptions) error {
 	// TODO
+	return nil
+}
+
+func (c *release) Install(ctx context.Context, name string, opts metav1.InstallOptions) error {
 	return nil
 }
 
