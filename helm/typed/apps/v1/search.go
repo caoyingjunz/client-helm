@@ -28,7 +28,7 @@ func newSearch(cc *AppsV1Client, namespace string) *search {
 		namespace = defaultNamespace
 	}
 
-	client := cc.HelmClient()
+	client := cc.Client()
 	return &search{
 		client: client.GetClient(),
 		ns:         namespace,

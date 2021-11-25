@@ -23,6 +23,7 @@ import (
 type AppsV1Interface interface {
 	ReleasesGetter
 	ReposGetter
+	SearchGetter
 }
 
 type AppsV1Client struct {
@@ -36,6 +37,10 @@ func (c *AppsV1Client) Releases(namespace string) ReleaseInterface {
 // HelmClient returns a HelmClient that is used to communicate
 func (c *AppsV1Client) Repos(namespace string) RepoInterface {
 	return newRepos(c, namespace)
+}
+
+func (c *AppsV1Client) Search(namespace string) SearchInterface {
+	return newSearch(c, namespace)
 }
 
 // Client returns a Client that is used to communicate
