@@ -17,6 +17,6 @@ import "github.com/caoyingjunz/client-helm"
 ```
 
 # Usage
-- [Usage](./examples/main.go)
+- Example usage of client-helm can be found in the [usages](./examples)
 
 Copyright 2019 caoyingjun (cao.yingjunz@gmail.com) Apache License 2.0
