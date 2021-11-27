@@ -19,7 +19,31 @@ package v1
 // CreateOptions may be provided when creating an API object.
 type CreateOptions struct{}
 
-type InstallOptions struct{}
+type InstallOptions struct {
+	ChartReference string `json:"chartReference,omitempty"`
+	// Create the release namespace if not present
+	// +optional
+	CreateNamespace bool `json:"createNamespace,omitempty"`
+
+	// generate the name (and omit the NAME parameter)
+	// +optional
+	GenerateName bool `json:"generateName,omitempty"`
+
+	// Specify the exact chart version to use. If this is not specified, the latest version is used
+	// +optional
+	Version *string `json:"version,omitempty"`
+	// if set, will wait until all Pods, PVCs, Services, and minimum number of Pods of a Deployment,
+	// StatefulSet, or ReplicaSet are in a ready state before marking the release as successful.
+	Wait bool `json:"wait"`
+
+	// Specify values in a YAML file or a URL (can specify multiple)
+	// +optional
+	ValuesFiles []string `json:"valuesFiles,omitempty"`
+
+	// Set values on the command line
+	// +optional
+	ValuesSets map[string]string `json:"valueSets,omitempty"`
+}
 
 type DeleteOptions struct{}
 
