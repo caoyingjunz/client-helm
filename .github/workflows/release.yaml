@@ -1,0 +1,14 @@
+name: Test Releases
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  misspell-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.4.0
