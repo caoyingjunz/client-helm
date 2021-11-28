@@ -25,10 +25,13 @@ import (
 	"k8s.io/klog/v2"
 	utilexec "k8s.io/utils/exec"
 	utiltrace "k8s.io/utils/trace"
+
+	metav1 "github.com/caoyingjunz/client-helm/api/meta/v1"
 )
 
 type Interface interface {
-	Delete(namespace string, name string) error
+	Install(namespace string, name string, opts metav1.InstallOptions) error
+	Delete(namespace string, name string, opts metav1.DeleteOptions) error
 	Get(namespace string, name string) ([]byte, error)
 	List(namespace string) ([]byte, error)
 	HubList(namespace string, name string) ([]byte, error)
@@ -42,6 +45,7 @@ const (
 type operation string
 
 const (
+  opInstall operation = "install"
 	opList   operation = "list"
 	opDelete operation = "delete"
 	opCreate operation = "create"
@@ -67,10 +71,50 @@ func New(exec utilexec.Interface, kubeconfig string) Interface {
 	}
 }
 
-func (runner *runner) Delete(namespace string, name string) error {
-	runner.mu.Lock()
-	defer runner.mu.Unlock()
+func (runner *runner) Install(namespace string, name string, opts metav1.InstallOptions) error {
+	trace := utiltrace.New("helm install")
+	defer trace.LogIfLong(2 * time.Second)
 
+	if len(name) == 0 {
+		return fmt.Errorf("name can not be empty when install release")
+	}
+	// TODO: only supported install chart relase by reference for now
+	if opts.ChartReference == "" {
+		return fmt.Errorf("chart reference can not be empty when install release")
+	}
+
+	// setup args
+	args := []string{name, opts.ChartReference}
+	if opts.CreateNamespace {
+		args = append(args, "--create-namespace")
+	}
+	if opts.Version != nil {
+		args = append(args, []string{"--version", *opts.Version}...)
+	}
+	if opts.Wait {
+		args = append(args, "--wait")
+	}
+	if len(opts.ValuesFiles) != 0 {
+		for _, valuesFile := range opts.ValuesFiles {
+			// TODO: To ensure the yaml file exists
+			args = append(args, []string{"-f", valuesFile}...)
+		}
+	}
+	if len(opts.ValuesSets) != 0 {
+		for k, v := range opts.ValuesSets {
+			args = append(args, []string{"--set", fmt.Sprintf("%s=%s", k, v)}...)
+		}
+	}
+
+	fullArgs := runner.makeFullArgs(namespace, args...)
+	if out, err := runner.runContext(context.TODO(), opInstall, fullArgs); err != nil {
+		return fmt.Errorf("error install release: %v: %s", err, out)
+	}
+
+	return nil
+}
+
+func (runner *runner) Delete(namespace string, name string, opts metav1.DeleteOptions) error {
 	trace := utiltrace.New("helm delete")
 	defer trace.LogIfLong(2 * time.Second)
 
@@ -83,23 +127,20 @@ func (runner *runner) Delete(namespace string, name string) error {
 	if ctx.Err() == context.DeadlineExceeded {
 		return fmt.Errorf("timed out while delete release %s", name)
 	}
-	if err == nil {
-		return nil
+	if err != nil {
+		return fmt.Errorf("error delete release: %v: %s", err, out)
 	}
 
-	return fmt.Errorf("error delete release: %v: %s", err, out)
+	return nil
 }
 
 func (runner *runner) Get(namespace string, name string) ([]byte, error) {
-	runner.mu.Lock()
-	defer runner.mu.Unlock()
-
 	trace := utiltrace.New("helm get")
 	defer trace.LogIfLong(2 * time.Second)
 
-	fullArgs := runner.makeFullArgs(namespace, "-f", fmt.Sprintf("^%s$", name))
+	// setup args
+	fullArgs := runner.makeFullArgs(namespace, []string{"-f", fmt.Sprintf("^%s$", name)}...)
 	fullArgs = append(fullArgs, []string{"-o", "json"}...)
-
 	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
 	defer cancel()
@@ -108,17 +149,16 @@ func (runner *runner) Get(namespace string, name string) ([]byte, error) {
 	if ctx.Err() == context.DeadlineExceeded {
 		return nil, fmt.Errorf("timed out while get release")
 	}
-	if err == nil {
-		return out, nil
+	if err != nil {
+		return nil, fmt.Errorf("error get release: %v: %s", err, out)
 	}
 
-	return nil, fmt.Errorf("error get release: %v: %s", err, out)
+	return out, nil
 }
 
 func (runner *runner) List(namespace string) ([]byte, error) {
-	runner.mu.Lock()
-	defer runner.mu.Unlock()
-
+	//runner.mu.Lock()
+	//defer runner.mu.Unlock()
 	trace := utiltrace.New("helm list")
 	defer trace.LogIfLong(2 * time.Second)
 

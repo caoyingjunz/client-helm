@@ -30,7 +30,7 @@ const (
 	defaultNamespace = "default"
 )
 
-// A group's client should implement this interface.
+// ReleasesGetter A group's client should implement this interface.
 type ReleasesGetter interface {
 	Releases(namespace string) ReleaseInterface
 }
@@ -38,6 +38,7 @@ type ReleasesGetter interface {
 // ReleaseInterface has methods to work with release resources.
 type ReleaseInterface interface {
 	Create(ctx context.Context, opts metav1.CreateOptions) error
+	Install(ctx context.Context, name string, opts metav1.InstallOptions) error
 	Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error
 	Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Release, error)
 	List(ctx context.Context, opts metav1.ListOptions) (*v1.ReleaseList, error)
@@ -69,8 +70,18 @@ func (c *release) Create(ctx context.Context, opts metav1.CreateOptions) error {
 	return nil
 }
 
+// Install This command installs a chart archive.
+// The install argument must be a chart reference for now
+func (c *release) Install(ctx context.Context, name string, opts metav1.InstallOptions) error {
+	return c.client.Install(c.ns, name, opts)
+}
+
+// Delete be equal to command:
+// helm uninstall RELEASE_NAME [...] [flags]
+// Aliases:
+//   uninstall, del, delete, un
 func (c *release) Delete(ctx context.Context, name string, opts metav1.DeleteOptions) error {
-	return c.client.Delete(c.ns, name)
+	return c.client.Delete(c.ns, name, opts)
 }
 
 func (c *release) Get(ctx context.Context, name string, opts metav1.GetOptions) (*v1.Release, error) {
