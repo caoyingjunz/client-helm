@@ -33,18 +33,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	clientSet, err := helm.NewForConfig(config)
+	helmClient, err := helm.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
 
-	releases, err := clientSet.AppsV1().Search("default").RepoList(context.TODO(), "redis", metav1.RepoListOptions{})
+	releases, err := helmClient.AppsV1().Search("kubez-sysns").RepoList(context.TODO(), "redis", metav1.RepoListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
 	fmt.Println(fmt.Sprintf("%+v", releases.Items))
 
-	release, err := clientSet.AppsV1().Search("default").HubList(context.TODO(), "redis", metav1.HubListOptions{})
+	release, err := helmClient.AppsV1().Search("kubez-sysns").HubList(context.TODO(), "redis", metav1.HubListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}

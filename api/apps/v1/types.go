@@ -32,9 +32,9 @@ type ReleaseList struct {
 }
 
 type SearchHub struct {
-	Url           string `json:"url,omitempty"`
-	AppVersion    string `json:"app_version,omitempty"`
-	Description   string `json:"description,omitempty"`
+	Url         string `json:"url,omitempty"`
+	AppVersion  string `json:"app_version,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 type SearchHubList struct {
 	Items []SearchHub `json:"items"`
@@ -45,7 +45,7 @@ type SearchRepoList struct {
 }
 
 type SearchRepo struct {
-	Name string `json:"name,omitempty"`
-	AppVersion    string `json:"app_version,omitempty"`
-	Description   string `json:"description,omitempty"`
+	Name        string `json:"name,omitempty"`
+	AppVersion  string `json:"app_version,omitempty"`
+	Description string `json:"description,omitempty"`
 }

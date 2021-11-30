@@ -45,12 +45,12 @@ const (
 type operation string
 
 const (
-  opInstall operation = "install"
-	opList   operation = "list"
-	opDelete operation = "delete"
-	opCreate operation = "create"
-	opSearch operation = "search"
-	opSearchHub operation = "hub"
+	opInstall    operation = "install"
+	opList       operation = "list"
+	opDelete     operation = "delete"
+	opCreate     operation = "create"
+	opSearch     operation = "search"
+	opSearchHub  operation = "hub"
 	opSearchRepo operation = "repo"
 )
 

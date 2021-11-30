@@ -21,7 +21,7 @@ type SearchInterface interface {
 
 type search struct {
 	client utilhelm.Interface
-	ns         string
+	ns     string
 }
 
 func newSearch(cc *AppsV1Client, namespace string) *search {
@@ -32,11 +32,11 @@ func newSearch(cc *AppsV1Client, namespace string) *search {
 	client := cc.Client()
 	return &search{
 		client: client.GetClient(),
-		ns:         namespace,
+		ns:     namespace,
 	}
 }
 
-func (c *search) HubList(ctx context.Context,name string, opts metav1.HubListOptions) (*v1.SearchHubList, error) {
+func (c *search) HubList(ctx context.Context, name string, opts metav1.HubListOptions) (*v1.SearchHubList, error) {
 	out, err := c.client.HubList(c.ns, name)
 	if err != nil {
 		return nil, err
