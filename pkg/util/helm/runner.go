@@ -179,7 +179,14 @@ func (runner *runner) makeFullArgs(namespace string, args ...string) []string {
 	if len(runner.kubeConfig) != 0 {
 		args = append(args, []string{"--kubeconfig", runner.kubeConfig}...)
 	}
-	return append(args, []string{"-n", namespace}...)
+	var ns []string
+	if namespace == "all-namespaces" {
+		ns = []string{"--all-namespaces"}
+	} else {
+		ns = []string{"-n", namespace}
+	}
+
+	return append(args, ns...)
 }
 
 func (runner *runner) run(op operation, args []string) ([]byte, error) {
