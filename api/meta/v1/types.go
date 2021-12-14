@@ -53,3 +53,7 @@ type GetOptions struct {
 }
 
 type ListOptions struct{}
+
+type RepoListOptions struct{}
+
+type HubListOptions struct{}

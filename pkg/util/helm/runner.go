@@ -34,6 +34,8 @@ type Interface interface {
 	Delete(namespace string, name string, opts metav1.DeleteOptions) error
 	Get(namespace string, name string) ([]byte, error)
 	List(namespace string) ([]byte, error)
+	HubList(namespace string, name string) ([]byte, error)
+	RepoList(namespace string, name string) ([]byte, error)
 }
 
 const (
@@ -43,10 +45,13 @@ const (
 type operation string
 
 const (
-	opInstall operation = "install"
-	opList    operation = "list"
-	opDelete  operation = "delete"
-	opCreate  operation = "create"
+	opInstall    operation = "install"
+	opList       operation = "list"
+	opDelete     operation = "delete"
+	opCreate     operation = "create"
+	opSearch     operation = "search"
+	opSearchHub  operation = "hub"
+	opSearchRepo operation = "repo"
 )
 
 // Namespace represents different ns for helm (k8s)
@@ -173,6 +178,58 @@ func (runner *runner) List(namespace string) ([]byte, error) {
 	}
 
 	return nil, fmt.Errorf("error list release: %v: %s", err, out)
+}
+
+func (runner *runner) HubList(namespace string, name string) ([]byte, error) {
+	runner.mu.Lock()
+	defer runner.mu.Unlock()
+
+	trace := utiltrace.New("helm search")
+	defer trace.LogIfLong(2 * time.Second)
+
+	fullArgs := []string{string(opSearchHub)}
+	fullArgs = append(fullArgs, runner.makeFullArgs(namespace, name)...)
+	fullArgs = append(fullArgs, []string{"-o", "json"}...)
+
+	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	out, err := runner.runContext(ctx, opSearch, fullArgs)
+	if ctx.Err() == context.DeadlineExceeded {
+		return nil, fmt.Errorf("timed out while list release")
+	}
+	if err == nil {
+		return out, nil
+	}
+
+	return nil, fmt.Errorf("error search hub release: %v: %s", err, out)
+}
+
+func (runner *runner) RepoList(namespace string, name string) ([]byte, error) {
+	runner.mu.Lock()
+	defer runner.mu.Unlock()
+
+	trace := utiltrace.New("helm search")
+	defer trace.LogIfLong(2 * time.Second)
+
+	fullArgs := []string{string(opSearchRepo)}
+	fullArgs = append(fullArgs, runner.makeFullArgs(namespace, name)...)
+	fullArgs = append(fullArgs, []string{"-o", "json"}...)
+
+	klog.V(4).Infof("running %s %v", cmdHelm, fullArgs)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	out, err := runner.runContext(ctx, opSearch, fullArgs)
+	if ctx.Err() == context.DeadlineExceeded {
+		return nil, fmt.Errorf("timed out while list release")
+	}
+	if err == nil {
+		return out, nil
+	}
+
+	return nil, fmt.Errorf("error search repo release: %v: %s", err, out)
 }
 
 func (runner *runner) makeFullArgs(namespace string, args ...string) []string {
