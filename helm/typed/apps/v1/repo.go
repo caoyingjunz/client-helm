@@ -43,10 +43,6 @@ type repo struct {
 }
 
 func newRepos(cc *AppsV1Client, namespace string) *repo {
-	if len(namespace) == 0 {
-		namespace = defaultNamespace
-	}
-
 	c := cc.Client()
 	return &repo{
 		client: c.GetClient(),
