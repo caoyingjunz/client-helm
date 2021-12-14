@@ -54,10 +54,6 @@ type release struct {
 
 // newReleases returns s release
 func newReleases(cc *AppsV1Client, namespace string) *release {
-	if len(namespace) == 0 {
-		namespace = defaultNamespace
-	}
-
 	c := cc.Client()
 	return &release{
 		client: c.GetClient(),
